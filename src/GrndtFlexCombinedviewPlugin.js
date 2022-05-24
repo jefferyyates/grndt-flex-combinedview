@@ -3,6 +3,7 @@ import { View, VERSION } from '@twilio/flex-ui';
 import { FlexPlugin } from '@twilio/flex-plugin';
 import CombinedView from './components/CombinedView';
 import CombinedSidebarButton from './components/CombinedSidebarButton';
+import CombinedViewWorkersDataTable from './components/CombinedViewWorkersDataTable';
 
 import reducers, { namespace } from './states';
 
@@ -35,43 +36,45 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
 
     flex.Actions.addListener("afterRemoveListFilters", (payload, abortFunction) => {
       console.log("JEFFX remove filter payload", payload);
-      let newFilters = flex.WorkersDataTable.defaultProps.filters;
-      flex.WorkersDataTable.defaultProps.filters = newFilters.filter(function(value, index, arr){
+      let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
+      CombinedViewWorkersDataTable.defaultProps.filters = newFilters.filter(function(value, index, arr){
         return value.key != payload.key;
       });
     });
 
     flex.Actions.addListener("afterApplyListFilters", (payload, abortFunction) => {
       console.log("JEFFX listener payload", payload);
-      console.log("JEFFX listener preFilter", flex.WorkersDataTable.defaultProps.filters);
-      // OK, need to see if current filters is empty...
-      if(!flex.WorkersDataTable.defaultProps.filters) {
-        flex.WorkersDataTable.defaultProps.filters = [];
-      }
-      // OR if current filters contains new filter by name...
-      let newFilters = flex.WorkersDataTable.defaultProps.filters;
-      flex.WorkersDataTable.defaultProps.filters = newFilters.filter((value, index, arr) => {
-        return value.key != payload.filters[0].key;
-      });
-      // then either create new list, add to list, or replace an item in list.
-      // Well, we created a new list if empty, and removed anything already there,
-      // So only thing left is to push new filter on.
-      
-      payload.filters.forEach(filter => {
-        let values = filter.values;
-        if(Array.isArray(values)) {
-          values = values.join(",");
-        }
-        flex.WorkersDataTable.defaultProps.filters.push(
-          {
-            key: payload.key,
-            text: payload.key,
-            query: `${filter.name} ${filter.condition} "${values}"`,
-          }
-        );
-      });
-      console.log("JEFFX listener postFilter", flex.WorkersDataTable.defaultProps.filters);
+      console.log("JEFFX listener preFilter", CombinedViewWorkersDataTable.defaultProps.filters);
 
+      if(payload.filters.length > 0) {
+        // OK, need to see if current filters is empty...
+        if(!CombinedViewWorkersDataTable.defaultProps.filters) {
+          CombinedViewWorkersDataTable.defaultProps.filters = [];
+        }
+        // OR if current filters contains new filter by name...
+        let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
+        CombinedViewWorkersDataTable.defaultProps.filters = newFilters.filter((value, index, arr) => {
+          return value.key != payload.key;
+        });
+        // then either create new list, add to list, or replace an item in list.
+        // Well, we created a new list if empty, and removed anything already there,
+        // So only thing left is to push new filter on.
+        
+        payload.filters.forEach(filter => {
+          let values = filter.values;
+          if(Array.isArray(values)) {
+            values = values.join(",");
+          }
+          CombinedViewWorkersDataTable.defaultProps.filters.push(
+            {
+              key: payload.key,
+              text: payload.key.replace(/-/g,' ').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase()),
+              query: `${filter.name} ${filter.condition} "${values}"`,
+            }
+          );
+        });
+      }
+      console.log("JEFFX listener postFilter", CombinedViewWorkersDataTable.defaultProps.filters);
     });
 
     // fix css Twilio-WorkerListFilterSelect css
