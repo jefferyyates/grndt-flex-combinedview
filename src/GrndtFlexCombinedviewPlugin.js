@@ -32,7 +32,7 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
     flex.SideNav.Content.add(
       <CombinedSidebarButton key="combined-view-button" />
     );
-/*
+
     flex.Actions.addListener("afterRemoveListFilters", (payload, abortFunction) => {
       console.log("JEFFX remove filter payload", payload);
       let newFilters = flex.WorkersDataTable.defaultProps.filters;
@@ -73,7 +73,7 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
       console.log("JEFFX listener postFilter", flex.WorkersDataTable.defaultProps.filters);
 
     });
-*/
+
     // fix css Twilio-WorkerListFilterSelect css
 
   }
