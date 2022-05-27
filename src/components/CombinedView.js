@@ -1,5 +1,5 @@
 import React from 'react';
-import { QueuesStatsView } from '@twilio/flex-ui';
+import { QueuesStatsView, TeamsView, WorkersDataTable } from '@twilio/flex-ui';
 import CombinedViewWorkersDataTable from './CombinedViewWorkersDataTable';
 
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, VERSION } from '@twilio/flex-ui';
+import { QueuesStats, QueuesStatsView, TeamsView, View, VERSION } from '@twilio/flex-ui';
+import * as Flex from '@twilio/flex-ui'
 import { FlexPlugin } from '@twilio/flex-plugin';
 import CombinedView from './components/CombinedView';
 import CombinedSidebarButton from './components/CombinedSidebarButton';
@@ -24,17 +25,26 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
   async init(flex, manager) {
     this.registerReducers(manager);
 
-    flex.ViewCollection.Content.add(
+
+    //Flex.ViewCollection.Content.remove("teams");
+    //Flex.SideNav.Content.remove("teams");
+
+    //Flex.QueuesStatsView.Content.add(<TeamsView key="mytv"/>);
+    // Try adding QueuesStatsView to TeamsView, but sort it -1 and/or align start?
+    //Flex.TeamsView.Content.add(<div key="mydiv"><QueuesStatsView key="myqsv"/><br key="mybr" style={{clear:"both"}}/><p>&nbsp;</p></div>, { sortOrder: -1});
+
+    
+    Flex.ViewCollection.Content.add(
       <View name="realtimequeueteamview" key="rtqtv">
         <CombinedView />
       </View>
     );
 
-    flex.SideNav.Content.add(
+    Flex.SideNav.Content.add(
       <CombinedSidebarButton key="combined-view-button" />
     );
-
-    flex.Actions.addListener("afterRemoveListFilters", (payload, abortFunction) => {
+    
+    Flex.Actions.addListener("afterRemoveListFilters", (payload, abortFunction) => {
       console.log("JEFFX remove filter payload", payload);
       let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
       CombinedViewWorkersDataTable.defaultProps.filters = newFilters.filter(function(value, index, arr){
@@ -42,9 +52,12 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
       });
     });
 
-    flex.Actions.addListener("afterApplyListFilters", (payload, abortFunction) => {
+    Flex.Actions.addListener("afterApplyListFilters", (payload, abortFunction) => {
       console.log("JEFFX listener payload", payload);
       console.log("JEFFX listener preFilter", CombinedViewWorkersDataTable.defaultProps.filters);
+      console.log("JEFFX listener preFilter", CombinedViewWorkersDataTable.defaultProps);
+      console.log("JEFFX listener Flex", Flex);
+      console.log("JEFFX Flex.TeamsView.Content", Flex.TeamsView.Content);
 
       if(payload.filters.length > 0) {
         // OK, need to see if current filters is empty...

@@ -16,21 +16,3 @@ export default class CombinedViewWorkersDataTable extends WorkersDataTable {
     return super.render();
   }
 }
-
-
-/*
-export default class CombinedViewWorkersDataTable extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    console.log("JEFFX render", this);
-    return(
-      <div>
-        <WorkersDataTable/>
-      </div>
-    );
-  }
-}
-*/
