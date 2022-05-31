@@ -1,5 +1,5 @@
 import * as FlexPlugin from '@twilio/flex-plugin';
 
-import GrndtFlexCombinedviewPlugin from './GrndtFlexCombinedviewPlugin';
+import CombinedviewPlugin from './CombinedviewPlugin';
 
-FlexPlugin.loadPlugin(GrndtFlexCombinedviewPlugin);
+FlexPlugin.loadPlugin(CombinedviewPlugin);

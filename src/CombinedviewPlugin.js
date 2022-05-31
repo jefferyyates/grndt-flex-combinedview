@@ -31,9 +31,9 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
 
     //Flex.QueuesStatsView.Content.add(<TeamsView key="mytv"/>);
     // Try adding QueuesStatsView to TeamsView, but sort it -1 and/or align start?
-    //Flex.TeamsView.Content.add(<div key="mydiv"><QueuesStatsView key="myqsv"/><br key="mybr" style={{clear:"both"}}/><p>&nbsp;</p></div>, { sortOrder: -1});
+    Flex.TeamsView.Content.add(<div key="mydiv"><QueuesStatsView key="myqsv"/><br key="mybr" style={{clear:"both"}}/><p>&nbsp;</p></div>, { sortOrder: -1});
 
-    
+    /*
     Flex.ViewCollection.Content.add(
       <View name="realtimequeueteamview" key="rtqtv">
         <CombinedView />
@@ -43,6 +43,7 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
     Flex.SideNav.Content.add(
       <CombinedSidebarButton key="combined-view-button" />
     );
+    */
     
     Flex.Actions.addListener("afterRemoveListFilters", (payload, abortFunction) => {
       console.log("JEFFX remove filter payload", payload);
