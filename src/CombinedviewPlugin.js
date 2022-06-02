@@ -1,16 +1,16 @@
-import React from 'react';
-import { QueuesStats, QueuesStatsView, TeamsView, View, VERSION } from '@twilio/flex-ui';
-import * as Flex from '@twilio/flex-ui'
 import { FlexPlugin } from '@twilio/flex-plugin';
+import { View, VERSION } from '@twilio/flex-ui';
+import * as Flex from '@twilio/flex-ui'
 import CombinedView from './components/CombinedView';
 import CombinedSidebarButton from './components/CombinedSidebarButton';
-import CombinedViewWorkersDataTable from './components/CombinedViewWorkersDataTable';
+
+import React from 'react';
 
 import reducers, { namespace } from './states';
 
-const PLUGIN_NAME = 'GrndtFlexCombinedviewPlugin';
+const PLUGIN_NAME = 'CombinedviewPlugin';
 
-export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
+export default class CombinedviewPlugin extends FlexPlugin {
   constructor() {
     super(PLUGIN_NAME);
   }
@@ -25,13 +25,19 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
   async init(flex, manager) {
     this.registerReducers(manager);
 
+    flex.ViewCollection.Content.add(
+      <View name="CombinedTaskQueueView" key="combined-view">
+        <CombinedView name="myCV" key="my-CV"/>
+      </View>
+    );
 
-    //Flex.ViewCollection.Content.remove("teams");
-    //Flex.SideNav.Content.remove("teams");
+    flex.SideNav.Content.add(
+      <CombinedSidebarButton key="my-CVB" />
+    );
 
     //Flex.QueuesStatsView.Content.add(<TeamsView key="mytv"/>);
     // Try adding QueuesStatsView to TeamsView, but sort it -1 and/or align start?
-    Flex.TeamsView.Content.add(<div key="mydiv"><QueuesStatsView key="myqsv"/><br key="mybr" style={{clear:"both"}}/><p>&nbsp;</p></div>, { sortOrder: -1});
+    //Flex.TeamsView.Content.add(<div key="mydiv"><QueuesStatsView key="myqsv"/><br key="mybr" style={{clear:"both"}}/><p>&nbsp;</p></div>, { sortOrder: -1});
 
     /*
     Flex.ViewCollection.Content.add(
@@ -43,8 +49,9 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
     Flex.SideNav.Content.add(
       <CombinedSidebarButton key="combined-view-button" />
     );
-    */
+    */    
     
+    /*
     Flex.Actions.addListener("afterRemoveListFilters", (payload, abortFunction) => {
       console.log("JEFFX remove filter payload", payload);
       let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
@@ -92,7 +99,7 @@ export default class GrndtFlexCombinedviewPlugin extends FlexPlugin {
     });
 
     // fix css Twilio-WorkerListFilterSelect css
-
+    */
   }
 
   /**
