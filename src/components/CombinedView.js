@@ -11,7 +11,7 @@ const CombinedView = (viewState) => {
           <QueuesStatsView name="myQSV" key="my-QSV"/>
         </div>
         <div>
-          <CombinedViewWorkersDataTable name="myWV" key="my-WV" isViewActive={viewState.isViewActive}/>
+          <CombinedViewWorkersDataTable name="myWV" isViewActive={viewState.isViewActive}/>
         </div>
       </div>
     );

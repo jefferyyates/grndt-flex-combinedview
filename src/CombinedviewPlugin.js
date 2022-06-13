@@ -70,16 +70,15 @@ export default class CombinedviewPlugin extends FlexPlugin {
     });
 
     Flex.Actions.addListener("afterApplyListFilters", (payload, abortFunction) => {
-      console.log("JEFFX listener payload", payload);
-      console.log("JEFFX listener preFilter", CombinedViewWorkersDataTable.defaultProps.filters);
-      console.log("JEFFX listener preFilter", CombinedViewWorkersDataTable.defaultProps);
-      console.log("JEFFX listener Flex", Flex);
-      console.log("JEFFX Flex.TeamsView.Content", Flex.TeamsView.Content);
+      console.log("JEFFX apply payload", payload);
+      console.log("JEFFX apply defaultProps", CombinedViewWorkersDataTable.defaultProps);
 
       if(payload.filters.length > 0) {
         // OK, need to see if current filters is empty...
-        if(!CombinedViewWorkersDataTable.defaultProps.filters) {
+        if(!CombinedViewWorkersDataTable.defaultProps.filters || CombinedViewWorkersDataTable.defaultProps.filters.length == 0) {
           CombinedViewWorkersDataTable.defaultProps.filters = [];
+          // Add in the defaults
+          CombinedViewWorkersDataTable.defaultFilters.forEach(defFilt => CombinedViewWorkersDataTable.defaultProps.filters.push(defFilt));
         }
         // OR if current filters contains new filter by name...
         let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
@@ -93,13 +92,16 @@ export default class CombinedviewPlugin extends FlexPlugin {
         payload.filters.forEach(filter => {
           let values = filter.values;
           if(Array.isArray(values)) {
-            values = values.join(",");
+            values = values.map((element, index) => {return `'${element}'`;}).join(",");
+            values = `[${values}]`;
+          } else {
+            values = `"${values}"`;
           }
           CombinedViewWorkersDataTable.defaultProps.filters.push(
             {
               key: payload.key,
               text: payload.key.replace(/-/g,' ').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase()),
-              query: `${filter.name} ${filter.condition} "${values}"`,
+              query: `${filter.name} ${filter.condition} ${values}`,
             }
           );
         });
