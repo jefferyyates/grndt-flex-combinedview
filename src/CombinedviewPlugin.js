@@ -10,6 +10,47 @@ import React from 'react';
 import reducers, { namespace } from './states';
 
 const PLUGIN_NAME = 'CombinedviewPlugin';
+const TEAMS_VIEW_FILTER_KEY = 'teams-view-filter';
+const TEAMS_VIEW_FILTER_TEXT = 'Teams View Filter';
+
+  /**
+   * Builds and parses rawFilters into filter query strings
+   */
+  function buildAndStoreCombinedViewFilters() {
+    // Build out a complex query...
+    let queryAry = [];
+  
+    // For each complex rawFilter...
+    CombinedViewWorkersDataTable.defaultProps.rawFilters.forEach(rawFilter => {
+      // For each individual filter...
+      rawFilter.filters.forEach(filter => {
+        // Build the filter as a query...
+        let values = filter.values;
+      
+        if(Array.isArray(values)) {
+          values = values.map((element, index) => {return `'${element}'`;}).join(",");
+          values = `[${values}]`;
+        } else {
+          values = `"${values}"`;
+        }
+  
+        // And add it to the array.
+        queryAry.push(`${filter.name} ${filter.condition} ${values}`);
+      });
+    });
+  
+    // Convert the array of sub queries to a combined string...
+    const query = queryAry.join(' AND ');
+  
+    // And push it into the CombinedViewWorkersDataTable.
+    CombinedViewWorkersDataTable.defaultProps.filters.push(
+      {
+        key: TEAMS_VIEW_FILTER_KEY,
+        text: TEAMS_VIEW_FILTER_TEXT,
+        query: query,
+      }
+    );  
+  };
 
 export default class CombinedviewPlugin extends FlexPlugin {
   constructor() {
@@ -26,90 +67,74 @@ export default class CombinedviewPlugin extends FlexPlugin {
   async init(flex, manager) {
     this.registerReducers(manager);
 
-    
+    // Add our new View
     flex.ViewCollection.Content.add(
-      <View name="CombinedTaskQueueView" key="combined-view">
-        <CombinedView name="myCV" key="my-CV"/>
+      <View name="CombinedTaskQueueView" key="combined-tq-view">
+        <CombinedView name={CombinedView.COMBINEDVIEW_NAME} key="my-CV"/>
       </View>
     );
     
-
-    /*
-    flex.SideNav.Content.add(
-      <CombinedSidebarButton key="my-CVB" />
-    );
-    */
-
-    //Flex.QueuesStatsView.Content.add(<TeamsView key="mytv"/>);
-    // Try adding QueuesStatsView to TeamsView, but sort it -1 and/or align start?
-    
-    //Flex.TeamsView.Content.add(<div key="mydiv"><QueuesStatsView key="myqsv"/><br key="mybr" style={{clear:"both"}}/><p>&nbsp;</p></div>,
-    //   { sortOrder: -1});
-    
-
-    /*
-    Flex.ViewCollection.Content.add(
-      <View name="realtimequeueteamview" key="rtqtv">
-        <CombinedView />
-      </View>
-    );
-    */
-
+    // Add navigation button for our new View
     Flex.SideNav.Content.add(
       <CombinedSidebarButton key="combined-view-button" />
     );
-       
     
-    
+    // Add a listener to manage filters being removed.
     Flex.Actions.addListener("afterRemoveListFilters", (payload, abortFunction) => {
-      console.log("JEFFX remove filter payload", payload);
-      let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
-      CombinedViewWorkersDataTable.defaultProps.filters = newFilters.filter(function(value, index, arr){
+
+      let newFilters = CombinedViewWorkersDataTable.defaultProps.rawFilters;
+      CombinedViewWorkersDataTable.defaultProps.rawFilters = newFilters.filter(function(value, index, arr){
         return value.key != payload.key;
       });
+
+      // Trim out any old versions of the filters with the same key
+      newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
+      CombinedViewWorkersDataTable.defaultProps.filters = newFilters.filter((value, index, arr) => {
+        //return value.key != payload.key;
+        return value.key != TEAMS_VIEW_FILTER_KEY;
+      });
+      
+      // Build and store the filters.
+      buildAndStoreCombinedViewFilters();
+
     });
 
+    // Add a listener to manage filters being applied.
     Flex.Actions.addListener("afterApplyListFilters", (payload, abortFunction) => {
-      console.log("JEFFX apply payload", payload);
-      console.log("JEFFX apply defaultProps", CombinedViewWorkersDataTable.defaultProps);
 
+      // Only have to do something if there is a payload.
       if(payload.filters.length > 0) {
-        // OK, need to see if current filters is empty...
-        if(!CombinedViewWorkersDataTable.defaultProps.filters || CombinedViewWorkersDataTable.defaultProps.filters.length == 0) {
-          CombinedViewWorkersDataTable.defaultProps.filters = [];
-          // Add in the defaults
-          CombinedViewWorkersDataTable.defaultFilters.forEach(defFilt => CombinedViewWorkersDataTable.defaultProps.filters.push(defFilt));
+
+        // Initialize if there's nothing to start with.
+        if(!CombinedViewWorkersDataTable.defaultProps.rawFilters || CombinedViewWorkersDataTable.defaultProps.rawFilters.length == 0) {
+          CombinedViewWorkersDataTable.defaultProps.rawFilters = [];
         }
-        // OR if current filters contains new filter by name...
-        let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
-        CombinedViewWorkersDataTable.defaultProps.filters = newFilters.filter((value, index, arr) => {
+
+        // Trim out any old versions of the filters with the same key
+        let newRawFilters = CombinedViewWorkersDataTable.defaultProps.rawFilters;
+        CombinedViewWorkersDataTable.defaultProps.rawFilters = newRawFilters.filter((value, index, arr) => {
           return value.key != payload.key;
         });
-        // then either create new list, add to list, or replace an item in list.
-        // Well, we created a new list if empty, and removed anything already there,
-        // So only thing left is to push new filter on.
+        CombinedViewWorkersDataTable.defaultProps.rawFilters.push(payload);
         
-        payload.filters.forEach(filter => {
-          let values = filter.values;
-          if(Array.isArray(values)) {
-            values = values.map((element, index) => {return `'${element}'`;}).join(",");
-            values = `[${values}]`;
-          } else {
-            values = `"${values}"`;
-          }
-          CombinedViewWorkersDataTable.defaultProps.filters.push(
-            {
-              key: payload.key,
-              text: payload.key.replace(/-/g,' ').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase()),
-              query: `${filter.name} ${filter.condition} ${values}`,
-            }
-          );
-        });
-      }
-      console.log("JEFFX listener postFilter", CombinedViewWorkersDataTable.defaultProps.filters);
-    });
+        // Initialize if there's nothing to start with.
+        if(!CombinedViewWorkersDataTable.defaultProps.filters || CombinedViewWorkersDataTable.defaultProps.filters.length == 0) {
+          CombinedViewWorkersDataTable.defaultProps.filters = [];
+          CombinedViewWorkersDataTable.defaultFilters.forEach(defFilt => CombinedViewWorkersDataTable.defaultProps.filters.push(defFilt));
+        }
 
-    // fix css Twilio-WorkerListFilterSelect css
+        // Trim out any old versions of the filters with the same key
+        let newFilters = CombinedViewWorkersDataTable.defaultProps.filters;
+        CombinedViewWorkersDataTable.defaultProps.filters = newFilters.filter((value, index, arr) => {
+          //return value.key != payload.key;
+          return value.key != TEAMS_VIEW_FILTER_KEY;
+        });
+              
+        // Build and store the filters.
+        buildAndStoreCombinedViewFilters();
+      }
+
+    });
     
   }
 

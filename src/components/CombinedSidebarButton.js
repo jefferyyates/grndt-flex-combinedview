@@ -4,7 +4,6 @@ import { SideLink, Actions } from '@twilio/flex-ui';
 const CustomSidebarButton = ({activeView}) => {
     function navigate() {
         Actions.invokeAction('NavigateToView', {viewName: 'CombinedTaskQueueView'});
-        //Actions.invokeAction('HistoryPush', `/CombinedTaskQueueView/`);
     };
 
     return (
@@ -16,7 +15,7 @@ const CustomSidebarButton = ({activeView}) => {
         onClick= { navigate }
         key="my-CVSL"
       >
-        Combined Team and RTQ
+        Combined Team and Queue View
       </SideLink>
 
     );

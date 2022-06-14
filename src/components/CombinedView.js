@@ -1,21 +1,40 @@
 import React from 'react';
-import { QueuesStatsView, TeamsView, WorkersDataTable } from '@twilio/flex-ui';
+import styled from 'react-emotion';
+import { QueuesStatsView } from '@twilio/flex-ui';
 import CombinedViewWorkersDataTable from './CombinedViewWorkersDataTable';
 
+const COMBINEDVIEW_NAME = "CombinedView";
+
+const CombinedViewStyles = styled('div')`
+  .Twilio-CombinedTaskQueueView {
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    flex-flow: column nowrap;
+    -webkit-box-flex: 1;
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+  .myDiv {
+    overflow-y: scroll;
+    height: 50vh;
+    }
+  `;
+
 const CombinedView = (viewState) => {
-//export default class CombinedView extends React.Component {
-//  render() {
     return(
-      <div>
-        <div>
+      <CombinedViewStyles>
+      <div className="Twilio Twilio-CombinedTaskQueueView">
+        <div className="myDiv">
           <QueuesStatsView name="myQSV" key="my-QSV"/>
         </div>
-        <div>
-          <CombinedViewWorkersDataTable name="myWV" isViewActive={viewState.isViewActive}/>
+        <hr/>
+        <div className="myDiv">
+          <CombinedViewWorkersDataTable name="myWV" key="my-QSV" isViewActive={viewState.isViewActive}/>
         </div>
       </div>
+      </CombinedViewStyles>
     );
-//  }
 }
 
 export default CombinedView;
